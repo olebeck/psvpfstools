@@ -1,3 +1,4 @@
+#include <memory>
 #include "F00DNativeKeyEncryptor.h"
 
 #include "Utils.h"

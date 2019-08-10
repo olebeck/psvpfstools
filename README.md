@@ -10,11 +10,9 @@ However this tool is a completely new standalone approach that **does not requir
 
 All decryption is done **directly on the PC**.
 
-## Public F00D service
+## Native F00D service
 
-PFS tools were designed in such a way that implementation of F00D crypto layer can be provided separately.
-
-Currently you can use a service url located at: http://cma.henkaku.xyz
+PFS tools were designed in such a way that the F00D crypto layer is implemented natively.
 
 ## Why do I need F00D service?
 
@@ -36,7 +34,7 @@ Instead of using F00D service directly it is now possible to use a cache file th
 
 To use it pass path to the file with --f00d_cache option.
 
-When using --f00d_url option you will get an `F00D cache` output that you can copy to a cache file.
+When using the native F00D service you will get an `F00D cache` output that you can copy to a cache file.
 
 Two types of files are allowed: 
 
@@ -131,6 +129,22 @@ You have to set these environment variables for cmake:
 - LIBTOMCRYPT_INCLUDE_DIR=C:\libtomcrypt\build\include
 - LIBTOMCRYPT_LIBRARY=C:\libtomcrypt\build\lib\tomcrypt.lib
 
+#### MinGW-w64 Cross Compiler (example)
+
+Tested with 1.18.2
+
+Download the latest source package and `cd` into it.
+
+Build libtomcrypt
+```
+make -f "makefile" CROSS_COMPILE="x86_64-w64-mingw32-" CFLAGS="-DLTC_NO_TEST -DLTC_NO_PROTOTYPES"
+```
+
+Install libtomcrypt
+```
+make -f "makefile" install PREFIX="/home/$USER/.local/x86_64-w64-mingw32"
+```
+
 ### boost
 
 #### Windows (example)
@@ -182,6 +196,39 @@ You can install boost with apt-get:
 apt-get install libboost-all-dev
 ```
 
+#### MinGW-w64 Cross Compiler (example)
+
+Tested with 1.70.0
+
+Download the latest source package and `cd` into it.
+
+`cd` into the `b2` source directory.
+```
+cd tools/build
+```
+
+Bootstrap and install b2.
+```
+sh bootstrap.sh
+b2 install --prefix="/home/$USER/.local"
+```
+
+Return to the boost source root with
+```
+cd ../..
+```
+
+Create a config file to use the cross compiler.
+```
+echo "using gcc : : x86_64-w64-mingw32-g++ ;" >> project-config.jam
+```
+
+Build and install with `b2`.
+```
+b2 --with-filesystem --with-system --with-program_options --toolset=gcc --target-os=windows stage
+b2 --with-filesystem --with-system --with-program_options --toolset=gcc --target-os=windows --prefix="/home/$USER/.local/x86_64-w64-mingw32/" install
+```
+
 ### zlib
 
 #### Windows (example)
@@ -225,8 +272,6 @@ Options:
                             00112233445566778899AABBCCDDEEFF.
                             
   -z [ --zRIF ] arg         zRIF string.
-  
-  -f [ --f00d_url ] arg     Url of F00D service.
   
   -c [ --f00d_cache] arg    Path to flat or json file with F00D cache.
   
