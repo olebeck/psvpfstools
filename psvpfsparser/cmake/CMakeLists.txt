@@ -82,6 +82,10 @@ install(TARGETS ${PROJECT} RUNTIME DESTINATION bin)
 
 target_link_libraries (${PROJECT} ${Boost_LIBRARIES} libzRIF libb64 ${ZLIB_LIBRARIES} ${LIBTOMCRYPT_LIBRARIES})
 
+if (CMAKE_COMPILER_IS_GNUCXX)
+   target_link_libraries(${PROJECT} -static -static-libgcc -static-libstdc++)
+endif()
+
 include_directories(..)
 include_directories(../..)
 include_directories(${Boost_INCLUDE_DIRS})

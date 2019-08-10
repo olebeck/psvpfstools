@@ -23,6 +23,8 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/scripts
 
 include(scripts/ConfigureDependencies.cmake)
 
+SET(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+
 configure_boost()
 configure_zlib()
 configure_libtomcrypt()
