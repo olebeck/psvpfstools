@@ -142,7 +142,7 @@ make -f "makefile" CROSS_COMPILE="x86_64-w64-mingw32-" CFLAGS="-DLTC_NO_TEST -DL
 
 Install libtomcrypt
 ```
-make -f "makefile" install PREFIX="/home/$USER/.local/x86_64-w64-mingw32"
+make -f "makefile" install PREFIX="$HOME/.local/x86_64-w64-mingw32"
 ```
 
 ### boost
@@ -210,7 +210,7 @@ cd tools/build
 Bootstrap and install b2.
 ```
 sh bootstrap.sh
-b2 install --prefix="/home/$USER/.local"
+b2 install --prefix="$HOME/.local"
 ```
 
 Return to the boost source root with
@@ -226,7 +226,7 @@ echo "using gcc : : x86_64-w64-mingw32-g++ ;" >> project-config.jam
 Build and install with `b2`.
 ```
 b2 --with-filesystem --with-system --with-program_options --toolset=gcc --target-os=windows stage
-b2 --with-filesystem --with-system --with-program_options --toolset=gcc --target-os=windows --prefix="/home/$USER/.local/x86_64-w64-mingw32/" install
+b2 --with-filesystem --with-system --with-program_options --toolset=gcc --target-os=windows --prefix="$HOME/.local/x86_64-w64-mingw32/" install
 ```
 
 ### zlib
