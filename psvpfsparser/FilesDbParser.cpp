@@ -265,12 +265,6 @@ bool FilesDbParser::validate_header(uint32_t dataSize)
       return false;
    }
 
-   if(m_header.unk6 != 0xFFFFFFFFFFFFFFFF)
-   {
-      m_output << "Unexpected unk6" << std::endl;
-      return false;
-   }
-
    //check padding
    if(!isZeroVector(m_header.padding + 0, m_header.padding + sizeof(m_header.padding)))
    {
@@ -348,6 +342,14 @@ bool FilesDbParser::parseFilesDb(std::ifstream& inputStream, std::vector<sce_ng_
          return false;
       }
 
+      //bad block with error or unknown format
+      bool is_bad_block = false;
+      if (block.header.nFiles > 9)
+      {
+         is_bad_block = true;
+         block.header.nFiles = 0;
+      }
+
       //read file records
       for(std::uint32_t i = 0; i < block.header.nFiles; i++)
       {
@@ -364,7 +366,7 @@ bool FilesDbParser::parseFilesDb(std::ifstream& inputStream, std::vector<sce_ng_
          std::vector<std::uint8_t> unusedData1(nUnusedSize1);
          inputStream.read((char*)unusedData1.data(), nUnusedSize1);
 
-         if(!isZeroVector(unusedData1))
+         if(!isZeroVector(unusedData1) && !is_bad_block)
          {
             m_output << "Unexpected data instead of padding" << std::endl;
             return false;
