@@ -95,6 +95,10 @@ int PfsFile::decrypt_icv_file(boost::filesystem::path destination_root) const
    std::uintmax_t bytes_left = m_filepath.file_size();
    std::uint32_t sector_base = 0;
 
+   // icv.db pfs files are padded to the nearest sector boundary
+   // so we need to get the real size from files.db
+   std::uint32_t real_bytes_left = m_file.file.m_info.header.size;
+
    //in icv files there are more hashes than sectors due to merkle tree
    //this is different from unicv where it has one has per sector
 
@@ -125,11 +129,20 @@ int PfsFile::decrypt_icv_file(boost::filesystem::path destination_root) const
       }
       else
       {
-         outputStream.write((char*)buffer.data(), read_size);
+         bytes_left = bytes_left - read_size;
+         sector_base = sector_base + num_sectors;
+         if (read_size <= real_bytes_left)
+         {
+            outputStream.write((char*)buffer.data(), read_size);
+            real_bytes_left -= read_size;
+         }
+         else
+         {
+            outputStream.write((char*)buffer.data(), real_bytes_left);
+            real_bytes_left = 0;
+            break;
+         }
       }
-
-      bytes_left = bytes_left - read_size;
-      sector_base = sector_base + num_sectors;
    }
 
    if (bytes_left != 0)
