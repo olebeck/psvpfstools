@@ -96,6 +96,54 @@ void getFileListNoPfs(boost::filesystem::path root_path, std::set<boost::filesys
    }
 }
 
+//get files recoursively
+void getFileListNoPfs(boost::filesystem::path root_path, std::unordered_map<std::string, boost::filesystem::path>& files, std::unordered_map<std::string, boost::filesystem::path>& directories)
+{
+   if (!root_path.empty())
+   {
+      boost::filesystem::path apk_path(root_path);
+      boost::filesystem::recursive_directory_iterator end;
+      std::string key;
+
+      for (boost::filesystem::recursive_directory_iterator i(apk_path); i != end; ++i)
+      {
+         const boost::filesystem::path cp = (*i);
+
+         //skip paths that are not included in files.db
+         //i.nopush(true) will skip recursion into directory
+
+         //skip pfs directory
+         if(cp.filename() == boost::filesystem::path("sce_pfs")) {
+            i.no_push(true);
+            continue;
+         }
+
+         //skip packages
+         if(cp == (root_path / boost::filesystem::path("sce_sys/package"))) {
+            i.no_push(true);
+            continue;
+         }
+
+         //skip pfs inside sce_sys (for ADDCONT)
+         if(boost::ends_with(cp, boost::filesystem::path("sce_sys")) &&
+               cp != root_path / boost::filesystem::path("sce_sys") &&
+               boost::filesystem::exists(cp / boost::filesystem::path("keystone"))) {
+            i.no_push(true);
+            continue;
+         }
+
+         key.assign(cp.generic_string());
+         boost::to_upper(key);
+
+         //add file or directory
+         if(boost::filesystem::is_directory(cp))
+            directories.emplace(key, cp.generic_string()); //recreate from generic string to normalize slashes
+         else
+            files.emplace(key, cp.generic_string()); //recreate from generic string to normalize slashes
+      }
+   }
+}
+
 boost::filesystem::path source_path_to_dest_path(const boost::filesystem::path& source_root, const boost::filesystem::path& dest_root, const boost::filesystem::path& source_path) {
    boost::filesystem::path dest_path = dest_root / boost::filesystem::relative(source_path, source_root);
    return boost::filesystem::path(dest_path.generic_string());

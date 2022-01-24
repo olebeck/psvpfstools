@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <algorithm>
 #include <map>
+#include <unordered_map>
 #include <iomanip>
 #include <memory>
 
@@ -248,11 +249,11 @@ private:
    bool constructFilePaths(const std::map<std::uint32_t, std::uint32_t>& dirMatrix, const std::map<std::uint32_t, std::uint32_t>& fileMatrix, const std::vector<sce_ng_pfs_flat_block_t>& flatBlocks);
 
 private:
-   bool linkDirpaths(const std::set<boost::filesystem::path> real_directories);
+   bool linkDirpaths(const std::unordered_map<std::string, boost::filesystem::path>& real_directories);
 
-   bool linkFilepaths(const std::set<boost::filesystem::path> real_files, std::uint32_t fileSectorSize);
+   bool linkFilepaths(const std::unordered_map<std::string, boost::filesystem::path>& real_files, std::uint32_t fileSectorSize);
 
-   int matchFileLists(const std::set<boost::filesystem::path>& files);
+   int matchFileLists(const std::unordered_map<std::string, boost::filesystem::path>& files);
 
 public:
    int parse();

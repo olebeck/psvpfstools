@@ -11,6 +11,7 @@
 #include <map>
 #include <iomanip>
 #include <set>
+#include <unordered_set>
 
 #include <boost/filesystem.hpp>
 #include <boost/range/adaptor/reversed.hpp>
@@ -780,25 +781,21 @@ bool FilesDbParser::constructFilePaths(const std::map<std::uint32_t, std::uint32
 }
 
 //checks that directory exists
-bool FilesDbParser::linkDirpaths(const std::set<boost::filesystem::path> real_directories)
+bool FilesDbParser::linkDirpaths(const std::unordered_map<std::string, boost::filesystem::path>& real_directories)
 {
    m_output << "Linking dir paths..." << std::endl;
 
+   std::string key;
    for(auto& dir : m_dirs)
    {
-      //comparison should be done with is_equal (upper case) so it can not be replaced by .find()
-      bool found = false;
-      for(auto& real_dir : real_directories)
+      key.assign(dir.path().get_value().generic_string());
+      boost::to_upper(key);
+      auto it = real_directories.find(key);
+      if(it != real_directories.end())
       {
-         if(dir.path().is_equal(real_dir))
-         {
-            dir.path().link_to_real(real_dir);
-            found = true;
-            break;
-         }
+         dir.path().link_to_real(it->second);
       }
-      
-      if(!found)
+      else
       {
          m_output << "Directory " << dir.path() << " does not exist" << std::endl;
          return false;
@@ -810,25 +807,21 @@ bool FilesDbParser::linkDirpaths(const std::set<boost::filesystem::path> real_di
 
 //checks that files exist
 //checks that file size is correct
-bool FilesDbParser::linkFilepaths(const std::set<boost::filesystem::path> real_files, std::uint32_t fileSectorSize)
+bool FilesDbParser::linkFilepaths(const std::unordered_map<std::string, boost::filesystem::path>& real_files, std::uint32_t fileSectorSize)
 {
    m_output << "Linking file paths..." << std::endl;
 
+   std::string key;
    for(auto& file : m_files)
    {
-      //comparison should be done with is_equal (upper case) so it can not be replaced by .find()
-      bool found = false;
-      for(auto& real_file : real_files)
+      key.assign(file.path().get_value().generic_string());
+      boost::to_upper(key);
+      auto it = real_files.find(key);
+      if(it != real_files.end())
       {
-         if(file.path().is_equal(real_file))
-         {
-            file.path().link_to_real(real_file);
-            found = true;
-            break;
-         }
+         file.path().link_to_real(it->second);
       }
-
-      if(!found)
+      else
       {
          m_output << "File " << file.path() << " does not exist" << std::endl;
          return false;
@@ -849,28 +842,25 @@ bool FilesDbParser::linkFilepaths(const std::set<boost::filesystem::path> real_f
 }
 
 //returns number of extra files in real file system which are not present in files.db
-int FilesDbParser::matchFileLists(const std::set<boost::filesystem::path>& files)
+int FilesDbParser::matchFileLists(const std::unordered_map<std::string, boost::filesystem::path>& files)
 {
    m_output << "Matching file paths..." << std::endl;
+
+   std::string key;
+   std::unordered_set<std::string> db_files;
+   for(auto& vp : m_files)
+   {
+      key.assign(vp.path().get_value().generic_string());
+      boost::to_upper(key);
+      db_files.emplace(key);
+   }
 
    int real_extra = 0;
 
    bool print = false;
-   for(auto& rp : files)
+   for(auto it = files.begin(), end = files.end(); it != end; ++it)
    {
-      bool found = false;
-
-      //comparison should be done with is_equal (upper case) so it can not be replaced by .find()
-      for(auto& vp : m_files)
-      {
-         if(vp.path().is_equal(rp))
-         {
-            found = true;
-            break;
-         }
-      }
-
-      if(!found)
+      if(db_files.find(it->first) == db_files.end())
       {
          if(!print)
          {
@@ -878,37 +868,25 @@ int FilesDbParser::matchFileLists(const std::set<boost::filesystem::path>& files
             print = true;
          }
 
-         m_output << rp.generic_string() << std::endl;
+         m_output << it->second.generic_string() << std::endl;
          real_extra++;
       }
    }
 
-   print = false;
-   for(auto& vp : m_files)
-   {
-      bool found = false;
-
-      //comparison should be done with is_equal (upper case) so it can not be replaced by .find()
-      for(auto& rp : files)
-      {
-         if(vp.path().is_equal(rp))
-         {
-            found = true;
-            break;
-         }
-      }
-
-      if(!found)
-      {
-         if(!print)
-         {
-            m_output << "Files not found in filesystem :" << std::endl;
-            print = true;
-         }
-
-         m_output << vp.path() << std::endl;
-      }
-   }
+   //print = false;
+   //for(auto& vp : db_files)
+   //{
+   //   if(files.find(*vp) == files.end())
+   //   {
+   //      if(!print)
+   //      {
+   //         m_output << "Files not found in filesystem :" << std::endl;
+   //         print = true;
+   //      }
+   //
+   //      m_output << vp.path() << std::endl;
+   //   }
+   //}
 
    return real_extra;
 }
@@ -969,8 +947,8 @@ int FilesDbParser::parse()
       return -1;
 
    //get the list of real filesystem paths
-   std::set<boost::filesystem::path> files;
-   std::set<boost::filesystem::path> directories;
+   std::unordered_map<std::string, boost::filesystem::path> files;
+   std::unordered_map<std::string, boost::filesystem::path> directories;
    getFileListNoPfs(m_titleIdPath, files, directories);
 
    //link result dirs to real filesystem

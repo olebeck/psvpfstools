@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <set>
+#include <unordered_map>
 #include <fstream>
 
 #include <boost/filesystem.hpp>
@@ -30,6 +31,7 @@ std::string byte_array_to_string(const unsigned char* source, int nBytes);
 int print_bytes(const unsigned char* bytes, int length);
 
 void getFileListNoPfs(boost::filesystem::path root_path, std::set<boost::filesystem::path>& files, std::set<boost::filesystem::path>& directories);
+void getFileListNoPfs(boost::filesystem::path root_path, std::unordered_map<std::string, boost::filesystem::path>& files, std::unordered_map<std::string, boost::filesystem::path>& directories);
 
 //this can be linked only to existing file!
 struct sce_junction
@@ -81,5 +83,10 @@ public:
 
 public:
    //this operator should only be used for printing to console!
-   friend std::ostream& operator<<(std::ostream& os, const sce_junction& p);  
+   friend std::ostream& operator<<(std::ostream& os, const sce_junction& p);
+
+   const boost::filesystem::path& get_value() const
+   {
+      return m_value;
+   }
 };
