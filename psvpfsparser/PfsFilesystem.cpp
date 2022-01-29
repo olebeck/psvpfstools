@@ -15,16 +15,6 @@ PfsFilesystem::PfsFilesystem(std::shared_ptr<ICryptoOperations> cryptops, std::s
    m_pageMapper = std::unique_ptr<PfsPageMapper>(new PfsPageMapper(cryptops, iF00D, output, klicensee, titleIdPath));
 }
 
-std::vector<sce_ng_pfs_file_t>::const_iterator PfsFilesystem::find_file_by_path(const std::vector<sce_ng_pfs_file_t>& files, const sce_junction& p) const
-{
-   for(std::vector<sce_ng_pfs_file_t>::const_iterator it = files.begin(); it != files.end(); ++it)
-   {
-      if(it->path().is_equal(p))
-         return it; 
-   }
-   return files.end();
-}
-
 int PfsFilesystem::mount()
 {
    if(m_filesDbParser->parse() < 0)
@@ -42,13 +32,21 @@ int PfsFilesystem::mount()
 int PfsFilesystem::decrypt_files(boost::filesystem::path destTitleIdPath) const
 {
    const sce_ng_pfs_header_t& ngpfs = m_filesDbParser->get_header();
-   const std::vector<sce_ng_pfs_file_t>& files = m_filesDbParser->get_files();
    const std::vector<sce_ng_pfs_dir_t>& dirs = m_filesDbParser->get_dirs();
 
    const std::unique_ptr<sce_idb_base_t>& unicv = m_unicvDbParser->get_idatabase();
 
    const std::map<std::uint32_t, sce_junction>& pageMap = m_pageMapper->get_pageMap();
    const std::set<sce_junction>& emptyFiles = m_pageMapper->get_emptyFiles();
+
+   std::unordered_map<std::string, const sce_ng_pfs_file_t&> files;
+   std::string key;
+   for(auto& f : m_filesDbParser->get_files())
+   {
+      key.assign(f.path().get_value().generic_string());
+      boost::to_upper(key);
+      files.emplace(key, f);
+   }
 
    m_output << "Creating directories..." << std::endl;
 
@@ -69,8 +67,9 @@ int PfsFilesystem::decrypt_files(boost::filesystem::path destTitleIdPath) const
 
    for(auto& f : emptyFiles)
    {
-      auto file = find_file_by_path(files, f);
-      if(file == files.end())
+      key.assign(f.get_value().generic_string());
+      boost::to_upper(key);
+      if(files.find(key) == files.end())
       {
          m_output << "Ignored: " << f << std::endl;
       }
@@ -106,12 +105,16 @@ int PfsFilesystem::decrypt_files(boost::filesystem::path destTitleIdPath) const
 
       //find file in files.db by filepath
       sce_junction filepath = map_entry->second;
-      auto file = find_file_by_path(files, filepath);
-      if(file == files.end())
+      key.assign(filepath.get_value().generic_string());
+      boost::to_upper(key);
+      auto it = files.find(key);
+      if(it == files.end())
       {
          m_output << "failed to find file " << filepath << " in flat file list" << std::endl;
          return -1;
       }
+
+      auto file = &it->second;
 
       //directory and unexisting file are unexpected
       if(is_directory(file->file.m_info.header.type) || is_unexisting(file->file.m_info.header.type))
