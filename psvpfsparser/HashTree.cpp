@@ -1,7 +1,5 @@
 #include "HashTree.h"
-
 #include "FilesDbParser.h"
-
 #include "Utils.h"
 
 int64_t page2off(std::uint32_t page, std::uint32_t pageSize)

@@ -12,6 +12,7 @@
 #include <map>
 #include <iomanip>
 #include <memory>
+#include <cstring>
 
 #include <filesystem>
 

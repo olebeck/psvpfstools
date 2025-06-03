@@ -4,8 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <memory>
-
 #include <filesystem>
+#include <cstring>
 
 //some terms
 //SCEIRODB (magic word) - sony computer entertainment interface readonly database (unicv file)

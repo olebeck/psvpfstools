@@ -19,9 +19,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 #additional search paths for cmake (in case of some custom dependencies)
-set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/scripts/")
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/scripts/")
 
-include(scripts/ConfigureDependencies.cmake)
+include(cmake/scripts/ConfigureDependencies.cmake)
 
 SET(CMAKE_FIND_LIBRARY_SUFFIXES .a)
 
@@ -30,16 +30,6 @@ configureCLI11()
 configure_zlib()
 configure_libtomcrypt()
 
-SET(EXECUTABLES psvpfsparser)
-SET(LIBRARIES libb64
-              libzRIF)
-
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-foreach(library ${LIBRARIES})
-   add_subdirectory(../${library}/cmake libraries/${library})
-endforeach(library)
-
-foreach(executable ${EXECUTABLES})
-   add_subdirectory(../${executable}/cmake executables/${executable})
-endforeach(executable)
+add_subdirectory(libb64 libraries/libb64)
+add_subdirectory(libzRIF libraries/libzRIF)
+add_subdirectory(psvpfsparser executables/psvpfsparser)

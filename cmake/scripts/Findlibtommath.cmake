@@ -1,4 +1,4 @@
-set(TOMMATH_SUBMODULE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../libtommath")
+set(TOMMATH_SUBMODULE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../libtommath")
 
 if(EXISTS "${TOMMATH_SUBMODULE_DIR}/CMakeLists.txt")
     add_subdirectory("${TOMMATH_SUBMODULE_DIR}" "${CMAKE_BINARY_DIR}/libtommath_build")
