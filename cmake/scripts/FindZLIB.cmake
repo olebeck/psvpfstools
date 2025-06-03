@@ -1,0 +1,10 @@
+set(ZLIB_SUBMODULE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../zlib")
+
+if(EXISTS "${ZLIB_SUBMODULE_DIR}/CMakeLists.txt")
+    set(ZLIB_BUILD_EXAMPLES OFF)
+    set(SKIP_INSTALL_ALL ON)
+    add_subdirectory("${ZLIB_SUBMODULE_DIR}" "${CMAKE_BINARY_DIR}/zlib_build")
+    set(ZLIB_FOUND TRUE)
+else()
+    message(FATAL_ERROR "Could not find the Zlib submodule in ${ZLIB_SUBMODULE_DIR}.")
+endif()

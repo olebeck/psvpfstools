@@ -146,12 +146,12 @@ int check_keystone(std::shared_ptr<ICryptoOperations> cryptops, keystone_t& ks, 
 
 //public functions
 
-int get_sealedkey(std::shared_ptr<ICryptoOperations> cryptops, boost::filesystem::path titleIdPath, unsigned char* dec_key)
+int get_sealedkey(std::shared_ptr<ICryptoOperations> cryptops, std::filesystem::path titleIdPath, unsigned char* dec_key)
 {
-   boost::filesystem::path root(titleIdPath);
-   boost::filesystem::path filepath = root / "sce_sys" / "sealedkey";
+   std::filesystem::path root(titleIdPath);
+   std::filesystem::path filepath = root / "sce_sys" / "sealedkey";
 
-   if(!boost::filesystem::exists(filepath))
+   if(!std::filesystem::exists(filepath))
    {
       std::cout << "sealedkey does not exist" << std::endl;
       return -1;
@@ -170,12 +170,12 @@ int get_sealedkey(std::shared_ptr<ICryptoOperations> cryptops, boost::filesystem
    return 0;
 }
 
-int get_keystone(std::shared_ptr<ICryptoOperations> cryptops, boost::filesystem::path titleIdPath, char* passcode)
+int get_keystone(std::shared_ptr<ICryptoOperations> cryptops, std::filesystem::path titleIdPath, char* passcode)
 {
-   boost::filesystem::path root(titleIdPath);
-   boost::filesystem::path filepath = root / "sce_sys" / "keystone";
+   std::filesystem::path root(titleIdPath);
+   std::filesystem::path filepath = root / "sce_sys" / "keystone";
 
-   if(!boost::filesystem::exists(filepath))
+   if(!std::filesystem::exists(filepath))
    {
       std::cout << "keystone does not exist" << std::endl;
       return -1;

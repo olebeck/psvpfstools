@@ -3,7 +3,7 @@
 #include "PfsFile.h"
 
 PfsFilesystem::PfsFilesystem(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, 
-                 const unsigned char* klicensee, boost::filesystem::path titleIdPath)
+                 const unsigned char* klicensee, std::filesystem::path titleIdPath)
    : m_cryptops(cryptops), m_iF00D(iF00D), m_output(output), m_titleIdPath(titleIdPath)
 {
    memcpy(m_klicensee, klicensee, 0x10);
@@ -39,7 +39,7 @@ int PfsFilesystem::mount()
    return 0;
 }
 
-int PfsFilesystem::decrypt_files(boost::filesystem::path destTitleIdPath) const
+int PfsFilesystem::decrypt_files(std::filesystem::path destTitleIdPath) const
 {
    const sce_ng_pfs_header_t& ngpfs = m_filesDbParser->get_header();
    const std::vector<sce_ng_pfs_file_t>& files = m_filesDbParser->get_files();

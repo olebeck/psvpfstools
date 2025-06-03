@@ -3,7 +3,7 @@
 #include "PfsKeyGenerator.h"
 
 PfsFile::PfsFile(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, 
-                 const unsigned char* klicensee, boost::filesystem::path titleIdPath,
+                 const unsigned char* klicensee, std::filesystem::path titleIdPath,
                  const sce_ng_pfs_file_t& file, const sce_junction& filepath, const sce_ng_pfs_header_t& ngpfs, std::shared_ptr<sce_iftbl_base_t> table)
    : m_cryptops(cryptops), m_iF00D(iF00D), m_output(output), m_titleIdPath(titleIdPath),
      m_file(file), m_filepath(filepath), m_ngpfs(ngpfs), m_table(table)
@@ -73,7 +73,7 @@ int PfsFile::init_crypt_ctx(CryptEngineWorkCtx* work_ctx, std::shared_ptr<sig_tb
    return 0;
 }
 
-int PfsFile::decrypt_icv_file(boost::filesystem::path destination_root) const
+int PfsFile::decrypt_icv_file(std::filesystem::path destination_root) const
 {
    //create new file
 
@@ -158,7 +158,7 @@ int PfsFile::decrypt_icv_file(boost::filesystem::path destination_root) const
    return 0;
 }
 
-int PfsFile::decrypt_unicv_file(boost::filesystem::path destination_root) const
+int PfsFile::decrypt_unicv_file(std::filesystem::path destination_root) const
 {
    //create new file
 
@@ -318,7 +318,7 @@ int PfsFile::decrypt_unicv_file(boost::filesystem::path destination_root) const
    return 0;
 }
 
-int PfsFile::decrypt_file(boost::filesystem::path destination_root) const
+int PfsFile::decrypt_file(std::filesystem::path destination_root) const
 {
    if(img_spec_to_is_unicv(m_ngpfs.image_spec))
       return decrypt_unicv_file(destination_root);

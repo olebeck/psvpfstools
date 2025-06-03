@@ -1,55 +1,43 @@
-#environment variables for configure_boost have to be set
-#BOOST_INCLUDEDIR
-#BOOST_LIBRARYDIR
-#BOOST_ROOT
-
-macro(configure_boost)
-
-message("configuring boost")
-
-set (Boost_USE_STATIC_LIBS ON)
-set (Boost_USE_MULTITHREADED ON)
-
-set (BOOST_COMPONENTS system 
-                      filesystem
-                      program_options)
-
-FIND_PACKAGE(Boost COMPONENTS ${BOOST_COMPONENTS} REQUIRED)
-
-if(Boost_FOUND)
-message("Using Boost_VERSION: ${Boost_VERSION}")
-message("Using Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-message("Using Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
-else()
-message("Boost library is not found")
-endif()
-
-endmacro(configure_boost)
-
 macro(configure_zlib)
+    message("configuring zlib")
 
-message("configuring zlib")
+    if (MSVC)
+    set (CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
+    endif()
 
-if (MSVC)
- set (CMAKE_EXE_LINKER_FLAGS "/SAFESEH:NO")
-endif()
-
-if (MSVC)
-set(ZLIB_INCLUDE_DIR "$ENV{ZLIB_INCLUDE_DIR}")
-set(ZLIB_LIBRARY "$ENV{ZLIB_LIBRARY}")
-endif()
-
-find_package(ZLIB REQUIRED)
-
-if(ZLIB_FOUND)
-message("Using ZLIB_VERSION_STRING: ${ZLIB_VERSION_STRING}")
-message("Using ZLIB_INCLUDE_DIRS: ${ZLIB_INCLUDE_DIRS}")
-message("Using ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
-else()
-message("Zlib library is not found")
-endif()
-
+    find_package(ZLIB REQUIRED)
 endmacro(configure_zlib)
+
+
+macro(configure_json)
+    set(NLOHMANN_JSON_URL "https://raw.githubusercontent.com/nlohmann/json/refs/heads/develop/single_include/nlohmann/json.hpp")
+    set(NLOHMANN_JSON_DEST "${CMAKE_BINARY_DIR}/include/nlohmann/json.hpp")
+    if(NOT EXISTS ${NLOHMANN_JSON_DEST})
+        message(STATUS "Downloading nlohmann/json.hpp from ${NLOHMANN_JSON_URL}")
+        file(DOWNLOAD ${NLOHMANN_JSON_URL} ${NLOHMANN_JSON_DEST} STATUS download_status SHOW_PROGRESS)
+        
+        list(GET download_status 0 status_code)
+        if(NOT status_code EQUAL 0)
+            message(FATAL_ERROR "Failed to download nlohmann/json.hpp. Status code: ${status_code}")
+        endif()
+    endif()
+    include_directories("${CMAKE_BINARY_DIR}/include")
+endmacro(configure_json)
+
+macro(configureCLI11)
+    set(CLI11_URL "https://github.com/CLIUtils/CLI11/releases/download/v2.4.2/CLI11.hpp")
+    set(CLI11_DEST "${CMAKE_BINARY_DIR}/include/CLI11.hpp")
+    if(NOT EXISTS ${CLI11_DEST})
+        message(STATUS "Downloading CLI11.hpp from ${CLI11_URL}")
+        file(DOWNLOAD ${CLI11_URL} ${CLI11_DEST} STATUS download_status SHOW_PROGRESS)
+        
+        list(GET download_status 0 status_code)
+        if(NOT status_code EQUAL 0)
+            message(FATAL_ERROR "Failed to download nlohmann/json.hpp. Status code: ${status_code}")
+        endif()
+    endif()
+endmacro(configureCLI11)
+
 
 macro(configure_libtomcrypt)
 
@@ -60,14 +48,6 @@ endif()
 
 find_package(LIBTOMCRYPT REQUIRED)
 
-if(LIBTOMCRYPT_FOUND)
-message("Found libtomcrypt library")
-message("Using LIBTOMCRYPT_INCLUDE_DIRS: ${LIBTOMCRYPT_INCLUDE_DIRS}")
-message("Using LIBTOMCRYPT_LIBRARIES: ${LIBTOMCRYPT_LIBRARIES}")
-
 add_definitions(-DLTC_NO_PROTOTYPES)
-else()
-message("libtomcrypt library is not found")
-endif()
 
 endmacro(configure_libtomcrypt)

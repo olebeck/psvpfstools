@@ -13,8 +13,7 @@
 #include <iomanip>
 #include <memory>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+#include <filesystem>
 
 #include "Utils.h"
 #include "FlagOperations.h"
@@ -212,7 +211,7 @@ private:
    std::shared_ptr<IF00DKeyEncryptor> m_iF00D;
    std::ostream& m_output;
    unsigned char m_klicensee[0x10];
-   boost::filesystem::path m_titleIdPath;
+   std::filesystem::path m_titleIdPath;
 
 private:
    sce_ng_pfs_header_t m_header;
@@ -221,7 +220,7 @@ private:
 
 public:
    FilesDbParser(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, 
-                 const unsigned char* klicensee, boost::filesystem::path titleIdPath);
+                 const unsigned char* klicensee, std::filesystem::path titleIdPath);
 
 private:
    bool verify_header_icv(std::ifstream& inputStream, const unsigned char* secret);
@@ -248,11 +247,11 @@ private:
    bool constructFilePaths(const std::map<std::uint32_t, std::uint32_t>& dirMatrix, const std::map<std::uint32_t, std::uint32_t>& fileMatrix, const std::vector<sce_ng_pfs_flat_block_t>& flatBlocks);
 
 private:
-   bool linkDirpaths(const std::set<boost::filesystem::path> real_directories);
+   bool linkDirpaths(const std::set<std::filesystem::path> real_directories);
 
-   bool linkFilepaths(const std::set<boost::filesystem::path> real_files, std::uint32_t fileSectorSize);
+   bool linkFilepaths(const std::set<std::filesystem::path> real_files, std::uint32_t fileSectorSize);
 
-   int matchFileLists(const std::set<boost::filesystem::path>& files);
+   int matchFileLists(const std::set<std::filesystem::path>& files);
 
 public:
    int parse();

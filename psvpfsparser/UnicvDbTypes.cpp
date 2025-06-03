@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include "UnicvDbTypes.h"
 
@@ -622,7 +623,7 @@ bool sce_idb_base_t::read_table_item(std::ifstream& inputStream, std::uint64_t& 
    return true;
 }
 
-bool sce_irodb_t::read(boost::filesystem::path filepath)
+bool sce_irodb_t::read(std::filesystem::path filepath)
 {
    std::ifstream inputStream(filepath.generic_string().c_str(), std::ios::in | std::ios::binary);
 
@@ -688,10 +689,10 @@ bool sce_irodb_t::read(boost::filesystem::path filepath)
    return true;
 }
 
-bool sce_icvdb_t::read(boost::filesystem::path filepath)
+bool sce_icvdb_t::read(std::filesystem::path filepath)
 {
    std::uint64_t index = 0;
-   for(auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(filepath), boost::filesystem::directory_iterator()))
+   for(auto const& entry : std::filesystem::directory_iterator{filepath})
    {
       std::ifstream inputStream(entry.path().generic_string().c_str(), std::ios::in | std::ios::binary);
 

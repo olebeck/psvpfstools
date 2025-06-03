@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <iomanip>
 
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+#include <filesystem>
 
 #include <libzRIF/zRIF/rif.h>
 #include <libzRIF/zRIF/licdec.h>
@@ -17,7 +16,7 @@
 #include "PsvPfsParserConfig.h"
 #include "LocalKeyGenerator.h"
 
-int execute(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, const unsigned char* klicensee, boost::filesystem::path titleIdPath, boost::filesystem::path destTitleIdPath)
+int execute(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, const unsigned char* klicensee, std::filesystem::path titleIdPath, std::filesystem::path destTitleIdPath)
 {
    PfsFilesystem pfs(cryptops, iF00D, std::cout, klicensee, titleIdPath);
 
@@ -71,22 +70,10 @@ int extract_klicensee(const PsvPfsParserConfig& cfg, std::shared_ptr<ICryptoOper
 
 std::shared_ptr<IF00DKeyEncryptor> create_F00D_encryptor(const PsvPfsParserConfig& cfg, std::shared_ptr<ICryptoOperations> cryptops)
 {
-   std::shared_ptr<IF00DKeyEncryptor> iF00D;
 
-   switch(cfg.f00d_enc_type)
-   {
-      case F00DEncryptorTypes::file:
-         iF00D = F00DKeyEncryptorFactory::create(cfg.f00d_enc_type, cfg.f00d_arg); 
-         break;
-      case F00DEncryptorTypes::native:
-         iF00D = F00DKeyEncryptorFactory::create(cfg.f00d_enc_type, cryptops); 
-         break;
-      default:
-         throw std::runtime_error("unexpected F00DEncryptorTypes value");
-   }
-
-   return iF00D;
+   return F00DKeyEncryptorFactory::create(cryptops); ;
 }
+
 
 int execute(const PsvPfsParserConfig& cfg)
 {
@@ -95,16 +82,16 @@ int execute(const PsvPfsParserConfig& cfg)
 
    //trim slashes in source path
    
-   boost::filesystem::path titleIdPath(cfg.title_id_src);
+   std::filesystem::path titleIdPath(cfg.title_id_src);
    std::string titleIdGen = titleIdPath.generic_string();
-   boost::algorithm::trim_right_if(titleIdGen, [](char c){return c == '/';});
-   titleIdPath = boost::filesystem::path(titleIdGen);
+   titleIdGen.erase(titleIdGen.find_last_not_of('/') + 1);
+   titleIdPath = std::filesystem::path(titleIdGen);
 
    //trim slashes in dest path
-   boost::filesystem::path destTitleIdPath(cfg.title_id_dst);
+   std::filesystem::path destTitleIdPath(cfg.title_id_dst);
    std::string destTitleIdPathGen = destTitleIdPath.generic_string();
-   boost::algorithm::trim_right_if(destTitleIdPathGen, [](char c){return c == '/';});
-   destTitleIdPath = boost::filesystem::path(destTitleIdPathGen);
+   titleIdGen.erase(titleIdGen.find_last_not_of('/') + 1);
+   destTitleIdPath = std::filesystem::path(destTitleIdPathGen);
 
    unsigned char klicensee[0x10] = {0};
    if(extract_klicensee(cfg, cryptops, klicensee) < 0)

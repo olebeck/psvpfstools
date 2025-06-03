@@ -1,7 +1,6 @@
 cmake_minimum_required (VERSION 3.6.0)
 
-set (PROJECT libzRIF)
-project (${PROJECT})
+project (libzRIF)
 
 add_library(${PROJECT} STATIC ../zRIF/keyflate.h
                               ../zRIF/licdec.h
@@ -10,6 +9,7 @@ add_library(${PROJECT} STATIC ../zRIF/keyflate.h
                               ../licdec.cpp)
 set_property(TARGET ${PROJECT} PROPERTY FOLDER "libraries")
 
+target_link_libraries(${PROJECT} zlibstatic)
+
 include_directories(..)
 include_directories(../..)
-include_directories(${ZLIB_INCLUDE_DIRS})

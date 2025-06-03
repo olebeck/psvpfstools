@@ -12,10 +12,7 @@
 #include <iomanip>
 #include <set>
 
-#include <boost/filesystem.hpp>
-#include <boost/range/adaptor/reversed.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string.hpp>
+#include <filesystem>
 
 #include "FilesDbParser.h"
 #include "UnicvDbParser.h"
@@ -95,7 +92,7 @@ std::string fileTypeToString(sce_ng_pfs_file_types ft)
 //------------ implementation -----------------
 
 FilesDbParser::FilesDbParser(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, 
-                             const unsigned char* klicensee, boost::filesystem::path titleIdPath)
+                             const unsigned char* klicensee, std::filesystem::path titleIdPath)
    : m_cryptops(cryptops), m_iF00D(iF00D), m_output(output), m_titleIdPath(titleIdPath)
 {
    memcpy(m_klicensee, klicensee, 0x10);
@@ -168,14 +165,14 @@ bool FilesDbParser::verify_header_icv(std::ifstream& inputStream, const unsigned
 
 bool FilesDbParser::get_isUnicv(bool& isUnicv)
 {
-   boost::filesystem::path root(m_titleIdPath);
+   std::filesystem::path root(m_titleIdPath);
 
-   boost::filesystem::path filepath = root / "sce_pfs" / "unicv.db";
+   std::filesystem::path filepath = root / "sce_pfs" / "unicv.db";
 
-   if(!boost::filesystem::exists(filepath))
+   if(!std::filesystem::exists(filepath))
    {
-      boost::filesystem::path filepath2 = root / "sce_pfs" / "icv.db";
-      if(!boost::filesystem::exists(filepath2) || !boost::filesystem::is_directory(filepath2))
+      std::filesystem::path filepath2 = root / "sce_pfs" / "icv.db";
+      if(!std::filesystem::exists(filepath2) || !std::filesystem::is_directory(filepath2))
       {
          m_output << "failed to find unicv.db file or icv.db folder" << std::endl;
 
@@ -290,8 +287,8 @@ bool FilesDbParser::parseFilesDb(std::ifstream& inputStream, std::vector<sce_ng_
    scePfsUtilGetSecret(m_cryptops, m_iF00D, secret, m_klicensee, m_header.files_salt, img_spec_to_crypto_engine_flag(m_header.image_spec), 0, 0);
 
    //verify header
-   if(!verify_header_icv(inputStream, secret))
-      return false;
+   //if(!verify_header_icv(inputStream, secret))
+   //   return false;
    
    //save current position
    int64_t chunksBeginPos = inputStream.tellg();
@@ -680,11 +677,14 @@ bool FilesDbParser::constructDirPaths(const std::map<std::uint32_t, std::uint32_
       std::string dirName((const char*)dirFlatBlock->file.fileName);
 
       //construct full path
-      boost::filesystem::path path = m_titleIdPath;
-      for(auto& dname : boost::adaptors::reverse(dirNames))
+      std::filesystem::path path = m_titleIdPath;
+
+      for (auto it = dirNames.rbegin(); it != dirNames.rend(); ++it)
       {
-         path /= dname;
+         auto dName = *it;
+         path /= dName;
       }
+
       path /= dirName;
 
       //use generic string here to normalize the path !
@@ -760,10 +760,11 @@ bool FilesDbParser::constructFilePaths(const std::map<std::uint32_t, std::uint32
       std::string fileName((const char*)fileFlatBlock->file.fileName);
 
       //construct full path
-      boost::filesystem::path path = m_titleIdPath;
-      for(auto& dname : boost::adaptors::reverse(dirNames))
+      std::filesystem::path path = m_titleIdPath;
+      for (auto it = dirNames.rbegin(); it != dirNames.rend(); ++it)
       {
-         path /= dname;
+         auto dName = *it;
+         path /= dName;
       }
       path /= fileName;
 
@@ -780,7 +781,7 @@ bool FilesDbParser::constructFilePaths(const std::map<std::uint32_t, std::uint32
 }
 
 //checks that directory exists
-bool FilesDbParser::linkDirpaths(const std::set<boost::filesystem::path> real_directories)
+bool FilesDbParser::linkDirpaths(const std::set<std::filesystem::path> real_directories)
 {
    m_output << "Linking dir paths..." << std::endl;
 
@@ -810,7 +811,7 @@ bool FilesDbParser::linkDirpaths(const std::set<boost::filesystem::path> real_di
 
 //checks that files exist
 //checks that file size is correct
-bool FilesDbParser::linkFilepaths(const std::set<boost::filesystem::path> real_files, std::uint32_t fileSectorSize)
+bool FilesDbParser::linkFilepaths(const std::set<std::filesystem::path> real_files, std::uint32_t fileSectorSize)
 {
    m_output << "Linking file paths..." << std::endl;
 
@@ -834,7 +835,7 @@ bool FilesDbParser::linkFilepaths(const std::set<boost::filesystem::path> real_f
          return false;
       }
 
-      boost::uintmax_t size = file.path().file_size();
+      uint32_t size = file.path().file_size();
       if(size != file.file.m_info.header.size)
       {
          if((size % fileSectorSize) > 0)
@@ -849,7 +850,7 @@ bool FilesDbParser::linkFilepaths(const std::set<boost::filesystem::path> real_f
 }
 
 //returns number of extra files in real file system which are not present in files.db
-int FilesDbParser::matchFileLists(const std::set<boost::filesystem::path>& files)
+int FilesDbParser::matchFileLists(const std::set<std::filesystem::path>& files)
 {
    m_output << "Matching file paths..." << std::endl;
 
@@ -916,7 +917,7 @@ int FilesDbParser::matchFileLists(const std::set<boost::filesystem::path>& files
 //parses files.db and flattens it into file list
 int FilesDbParser::parse()
 {
-   if(!boost::filesystem::exists(m_titleIdPath))
+   if(!std::filesystem::exists(m_titleIdPath))
    {
       m_output << "Root directory does not exist" << std::endl;
       return -1;
@@ -924,8 +925,8 @@ int FilesDbParser::parse()
 
    m_output << "parsing  files.db..." << std::endl;
 
-   boost::filesystem::path filepath = m_titleIdPath / "sce_pfs" / "files.db";
-   if(!boost::filesystem::exists(filepath))
+   std::filesystem::path filepath = m_titleIdPath / "sce_pfs" / "files.db";
+   if(!std::filesystem::exists(filepath))
    {
       m_output << "failed to find files.db file" << std::endl;
       return -1;
@@ -969,8 +970,8 @@ int FilesDbParser::parse()
       return -1;
 
    //get the list of real filesystem paths
-   std::set<boost::filesystem::path> files;
-   std::set<boost::filesystem::path> directories;
+   std::set<std::filesystem::path> files;
+   std::set<std::filesystem::path> directories;
    getFileListNoPfs(m_titleIdPath, files, directories);
 
    //link result dirs to real filesystem

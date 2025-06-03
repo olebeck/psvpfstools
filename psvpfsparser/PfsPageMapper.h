@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include "IF00DKeyEncryptor.h"
 #include "ICryptoOperations.h"
@@ -32,10 +32,10 @@ private:
    std::shared_ptr<IF00DKeyEncryptor> m_iF00D;
    std::ostream& m_output;
    unsigned char m_klicensee[0x10];
-   boost::filesystem::path m_titleIdPath;
+   std::filesystem::path m_titleIdPath;
 
 public:
-   PfsPageMapper(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, const unsigned char* klicensee, boost::filesystem::path titleIdPath);
+   PfsPageMapper(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, const unsigned char* klicensee, std::filesystem::path titleIdPath);
 
 private:
    std::shared_ptr<sce_junction> brutforce_hashes(const std::unique_ptr<FilesDbParser>& filesDbParser, std::map<sce_junction, std::vector<std::uint8_t>>& fileDatas, const unsigned char* secret, const unsigned char* signature) const;
@@ -48,7 +48,7 @@ private:
 public:
    int bruteforce_map(const std::unique_ptr<FilesDbParser>& filesDbParser, const std::unique_ptr<UnicvDbParser>& unicvDbParser);
 
-   int load_page_map(boost::filesystem::path filepath, std::map<std::uint32_t, std::string>& pageMap) const;
+   int load_page_map(std::filesystem::path filepath, std::map<std::uint32_t, std::string>& pageMap) const;
 
 public:
    const std::map<std::uint32_t, sce_junction>& get_pageMap() const;

@@ -1,12 +1,10 @@
 #include "PfsPageMapper.h"
 
-#include <boost/lexical_cast.hpp>
-
 #include "SecretGenerator.h"
 #include "UnicvDbParser.h"
 #include "FilesDbParser.h"
 
-PfsPageMapper::PfsPageMapper(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, const unsigned char* klicensee, boost::filesystem::path titleIdPath)
+PfsPageMapper::PfsPageMapper(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, const unsigned char* klicensee, std::filesystem::path titleIdPath)
    : m_cryptops(cryptops), m_iF00D(iF00D), m_output(output), m_titleIdPath(titleIdPath)
 {
    memcpy(m_klicensee, klicensee, 0x10);
@@ -133,7 +131,7 @@ int PfsPageMapper::bruteforce_map(const std::unique_ptr<FilesDbParser>& filesDbP
    else
       m_output << "Building icv.db -> files.db relation..." << std::endl;
 
-   boost::filesystem::path root(m_titleIdPath);
+   std::filesystem::path root(m_titleIdPath);
 
    //check file fileSectorSize
    std::set<std::uint32_t> fileSectorSizes;
@@ -153,8 +151,8 @@ int PfsPageMapper::bruteforce_map(const std::unique_ptr<FilesDbParser>& filesDbP
    std::uint32_t uniqueSectorSize = *fileSectorSizes.begin();
 
    //get all files and directories
-   std::set<boost::filesystem::path> files;
-   std::set<boost::filesystem::path> directories;
+   std::set<std::filesystem::path> files;
+   std::set<std::filesystem::path> directories;
    getFileListNoPfs(root, files, directories);
 
    //pre read all the files once
@@ -257,11 +255,11 @@ int PfsPageMapper::bruteforce_map(const std::unique_ptr<FilesDbParser>& filesDbP
 }
 
 //this is a test method that was supposed to be used for caching
-int PfsPageMapper::load_page_map(boost::filesystem::path filepath, std::map<std::uint32_t, std::string>& pageMap) const
+int PfsPageMapper::load_page_map(std::filesystem::path filepath, std::map<std::uint32_t, std::string>& pageMap) const
 {
-   boost::filesystem::path fp(filepath);
+   std::filesystem::path fp(filepath);
 
-   if(!boost::filesystem::exists(fp))
+   if(!std::filesystem::exists(fp))
    {
       m_output << "File " << fp.generic_string() << " does not exist" << std::endl;
       return -1;
@@ -280,7 +278,7 @@ int PfsPageMapper::load_page_map(boost::filesystem::path filepath, std::map<std:
       int index = line.find(' ');
       std::string pageStr = line.substr(0, index);
       std::string path = line.substr(index + 1);
-      std::uint32_t page = boost::lexical_cast<std::uint32_t>(pageStr);
+      std::uint32_t page = std::stoul(pageStr);
       pageMap.insert(std::make_pair(page, path));
    }
 

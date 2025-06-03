@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include "IF00DKeyEncryptor.h"
 #include "ICryptoOperations.h"
@@ -21,7 +21,7 @@ private:
    std::shared_ptr<IF00DKeyEncryptor> m_iF00D;
    std::ostream& m_output;
    unsigned char m_klicensee[0x10];
-   boost::filesystem::path m_titleIdPath;
+   std::filesystem::path m_titleIdPath;
 
 private:
    const sce_ng_pfs_file_t& m_file;
@@ -36,16 +36,16 @@ private:
 
 public:
    PfsFile(std::shared_ptr<ICryptoOperations> cryptops, std::shared_ptr<IF00DKeyEncryptor> iF00D, std::ostream& output, 
-           const unsigned char* klicensee, boost::filesystem::path titleIdPath,
+           const unsigned char* klicensee, std::filesystem::path titleIdPath,
            const sce_ng_pfs_file_t& file, const sce_junction& filepath, const sce_ng_pfs_header_t& ngpfs, std::shared_ptr<sce_iftbl_base_t> table);
 
 private:
    int init_crypt_ctx(CryptEngineWorkCtx* work_ctx, std::shared_ptr<sig_tbl_base_t> block, std::uint32_t sector_base, std::uint32_t tail_size, unsigned char* source) const;
 
-   int decrypt_icv_file(boost::filesystem::path destination_root) const;
+   int decrypt_icv_file(std::filesystem::path destination_root) const;
 
-   int decrypt_unicv_file(boost::filesystem::path destination_root) const;
+   int decrypt_unicv_file(std::filesystem::path destination_root) const;
 
 public:
-   int decrypt_file(boost::filesystem::path destination_root) const;
+   int decrypt_file(std::filesystem::path destination_root) const;
 };

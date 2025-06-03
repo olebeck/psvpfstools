@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.6.0)
+project (psvpfstools)
 
-set (PROJECT psvpfstools)
-project (${PROJECT})
+set (CMAKE_CXX_STANDARD 17)
 
 if (MSVC)
    add_definitions (/W3)
@@ -25,7 +25,8 @@ include(scripts/ConfigureDependencies.cmake)
 
 SET(CMAKE_FIND_LIBRARY_SUFFIXES .a)
 
-configure_boost()
+configure_json()
+configureCLI11()
 configure_zlib()
 configure_libtomcrypt()
 
