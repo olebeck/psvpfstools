@@ -680,7 +680,7 @@ bool FilesDbParser::constructDirPaths(const std::map<std::uint32_t, std::uint32_
       //construct full path
       std::filesystem::path path = m_titleIdPath;
 
-      for (auto const& dName : dirNames | std::ranges::views::reverse)
+      for (auto const& dName : dirNames | std::views::reverse)
       {
          path /= dName;
       }
@@ -761,9 +761,8 @@ bool FilesDbParser::constructFilePaths(const std::map<std::uint32_t, std::uint32
 
       //construct full path
       std::filesystem::path path = m_titleIdPath;
-      for (auto it = dirNames.rbegin(); it != dirNames.rend(); ++it)
+      for (auto const& dName : dirNames | std::views::reverse)
       {
-         auto dName = *it;
          path /= dName;
       }
       path /= fileName;
