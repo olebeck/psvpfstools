@@ -11,6 +11,7 @@
 #include <map>
 #include <iomanip>
 #include <set>
+#include <ranges>
 
 #include <filesystem>
 
@@ -679,9 +680,8 @@ bool FilesDbParser::constructDirPaths(const std::map<std::uint32_t, std::uint32_
       //construct full path
       std::filesystem::path path = m_titleIdPath;
 
-      for (auto it = dirNames.rbegin(); it != dirNames.rend(); ++it)
+      for (auto const& dName : dirNames | std::ranges::views::reverse)
       {
-         auto dName = *it;
          path /= dName;
       }
 

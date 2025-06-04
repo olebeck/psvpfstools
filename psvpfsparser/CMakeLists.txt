@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.20.0)
 project(psvpfsparser)
 
+set(CMAKE_CXX_STANDARD 20)
+
 add_executable (${PROJECT_NAME}
    "IF00DKeyEncryptor.h"
    "F00DKeyEncryptorFactory.h"
@@ -70,5 +72,5 @@ if (CMAKE_COMPILER_IS_GNUCXX)
    target_link_libraries(${PROJECT_NAME} -static -static-libgcc -static-libstdc++)
 endif()
 
-target_include_directories(${PROJECT_NAME} PRIVATE ..)
+target_include_directories(${PROJECT_NAME} PRIVATE .)
 
